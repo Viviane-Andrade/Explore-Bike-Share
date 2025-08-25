@@ -1,0 +1,165 @@
+---
+title: "Explore Bike Share Data"
+author: "Viviane Karpinski"
+date: "2025-08-09"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+In this project we will be analyzing data from a bicycle company called Bike Share Data. This company allows customers to rent out bicycles from one station and either dock them back in the original station or another station along the way. They currently provide this service in three states: Washington, New York City, and Chicago.
+
+```{r}
+#Loading up data and ggplot2
+ny = read.csv('new-york-city.csv')
+wash = read.csv('washington.csv')
+chi = read.csv('chicago.csv')
+library(ggplot2)
+```
+
+Overview of data:
+
+```{r}
+head(ny)
+```
+
+```{r}
+head(wash)
+```
+
+```{r}
+head(chi)
+```
+
+## Question #1: How many subscribers in each state?
+
+Subscribers pay for a membership instead of making one time payments. They are the most reliable form of income of this business. It could be helpful to know where most of the business' subscribers to analyze where the company could potentially invest more.
+
+```{r}
+#Finding out how many subscribers in each state
+
+ny_sub_sum <- sum(ny$User.Type == "Subscriber")
+print(ny_sub_sum)
+
+wash_sub_sum <- sum(wash$User.Type == "Subscriber")
+print(wash_sub_sum)
+
+chi_sub_sum <- sum(chi$User.Type == "Subscriber")
+print(chi_sub_sum)
+```
+
+```{r}
+# Creating a table to keep the information above together
+State <- c('NYC', 'Washington', 'Chicago')
+Subscribers <- c(ny_sub_sum, wash_sub_sum, chi_sub_sum)
+
+#Putting columns into a table
+subscriber_table <- data.frame(
+  State = State,
+  Subscribers = Subscribers
+)
+
+print(subscriber_table)
+
+```
+
+```{r}
+#Creating Bar Chart Visualization
+ggplot(subscriber_table, aes(x = State, y = Subscribers))+
+  geom_bar(stat = "identity", fill = "steelblue") +
+  #Getting rid of scientific notation
+  scale_y_continuous(labels = function(x) format(x, scientific = FALSE)) +
+  labs(title = "Subscribers per State",
+       x = "State",
+       y = "Amount of Subscribers")
+
+```
+
+The visualization above shows us that NYC specifically has more Bike Share subscribers. This shows that while walking the streets of New York City you are most likely to see bikers using Bike Share's services. The popularity of the service seems to be higher in NYC meaning if the company ever desired to make more investments this would be the perfect place as it would be most likely to be successful and it also has greater potential to recover from a disaster if needed.
+
+## Question #2: What gender is using Bike Share the most in NYC and Chicago?
+
+This is an excellent questions if we look at the company from a marketing point of view.The answer to this question can directly affect how the service is marketed. This can influence where advertisements are physically placed, and how and where advertisements are shown online.
+
+```{r}
+#How many women use bike share in NYC?
+ny_women_count <- sum(ny$Gender == "Female")
+print(ny_women_count)
+  
+#How many men use bike share in NYC? 
+ny_men_count <- sum(ny$Gender == "Male")
+print(ny_men_count)
+
+#How many women use bike share in Chicago?
+chi_women_count <- sum(chi$Gender == "Female")
+print(chi_women_count)
+
+#How many men use bike share in Chicago
+chi_men_count = sum(chi$Gender == "Male")
+print(chi_men_count)
+```
+
+```{r}
+#Creating an annotated pie chart to display NYC Genders better
+
+#Basic structure of pie chart
+slices <- c(ny_women_count, ny_men_count)
+lbls <- c("Women", "Men")
+pct <- round(slices/sum(slices)*100)
+lbls <- paste(lbls, pct)
+# add percents to labels
+lbls <- paste(lbls,"%",sep="") 
+pie(slices,labels = lbls, col=rainbow(length(lbls)),
+   main="Genders Using Bike Share in NYC")
+
+```
+
+```{r}
+#Creating an annotated pie chart to display Chicago Genders better
+
+#Basic structure of pie chart
+slices <- c(chi_women_count, chi_men_count)
+lbls <- c("Women", "Men")
+pct <- round(slices/sum(slices)*100)
+lbls <- paste(lbls, pct)
+# add percents to labels
+lbls <- paste(lbls,"%",sep="") 
+pie(slices,labels = lbls, col=rainbow(length(lbls)),
+   main="Genders Using Bike Share in Chicago")
+
+```
+
+The visual above shows that the users from Bike Share in NYC are mostly men and the same appears to be true in Chicago. It is safe to assume that the same trend would be present with the data from Washington if it were available. This means that the service has been popular with them because it fits their needs very well. It would be worth exploring new ways to engage with their female customers and grow their clientele with them as well. This will expand the spectrum of customers they have and eventually increase their revenue.
+
+## Question #3: What are the most common years of birth of users of Bike Share in NYC and Chicago?
+
+This question could also help with the marketing of Bike Share's service. Knowing which birth year is most common among users helps target specific generations. Knowing the answer to this question also helps understand who the users are, and with further research improve its service.
+
+```{r}
+#Selecting columns then combining them
+ny_b_years <- ny$Birth.Year
+chi_b_years <- chi$Birth.Year
+combined_years <- c(ny_b_years, chi_b_years)
+
+# Create table
+birth_years <- data.frame(BirthYears = combined_years)
+
+# View new table containing all birth years
+head(birth_years)
+```
+
+```{r}
+# Creating a histogram to view birth years and find trends
+ggplot(birth_years, aes(x = BirthYears))+
+  geom_histogram(binwidth = 5, fill = "steelblue", color = "white") +
+  xlim(1930, 2002) +
+  labs(title = "Distribution of Birth Years in NYC and Chicago",
+       x = "Year of Birth",
+       y = "Frequency")
+```
+
+The visualization above shows us that the most popular users were born in the late 80s or early 90s. This gives a better understanding of who the users are. This answer raises even more questions such as why are people who were born in the late 90s less likely to use the service? How can the company engage with a younger generation? All these question and can lead to better marketing for the company.
